@@ -106,13 +106,16 @@ def get_population_percents(population_data, population_table_cols, user_dem_bin
 def get_bins(user_data, population_data, dem, population_table_cols, user_dem_bins, smoothing=0, min_bin_num=0, smooth_before_binning=False):
     # get bins
     bins = user_dem_bins
-    values = user_data[dem]
+    values = user_data[dem].tolist()
     bins_counts, _ = np.histogram(values, bins=bins)
     if min_bin_num > 0:
         bins, bins_counts = collapse_bins(bins, bins_counts, smoothing, min_bin_num)
 
     # get percentages
-    user_percents = np.array([x / len(values) for x in bins_counts])
+    if type(values) == int:
+        user_percents = np.array([x for x in bins_counts])
+    else:
+        user_percents = np.array([x / len(values) for x in bins_counts])
     population_percents = get_population_percents(population_data, population_table_cols, user_dem_bins, bins)
 
     # recalculate if smooth before binning

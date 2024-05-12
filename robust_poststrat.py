@@ -130,6 +130,9 @@ def main(args):
         writer.writerow(['user_id', 'cnty', 'weight'])
 
     print('Loading Data')
+    with open(args.user_table, 'r') as f:
+        print('Number of users:', len(f.readlines()))
+    
     user_df, population_df = utils.load_data(args.user_table, args.population_data)
     if args.redistribution:
         print('Performing Redistribution')
@@ -192,13 +195,30 @@ def main(args):
                 user_dem_bins=BINS,
                 population_dem_cols=POPULATION_TABLE_COLS,
             )
+            
+            
+        user_weights = user_weights.reset_index()
+        # print('User Weights')
+        # print(user_weights)
 
         # write weights to output file
         with open(args.output, 'a') as f:
             writer = csv.writer(f, quoting=csv.QUOTE_MINIMAL)
-            for index, row in user_weights.iterrows():
-                writer.writerow([int(row['user_id']), cnty, row['weight']])
-
+            for _, row in user_weights.iterrows():
+                try:
+                    row_contents = [int(row['user_id']), cnty, row['weight']]
+                    writer.writerow(row_contents)
+                except:
+                    pass
+    
+    print('DONE Assigning Weights')
+    print('Output file: {d}'.format(d=args.output))
+    
+    # Length of the output file
+    with open(args.output, 'r') as f:
+        print('Number of users who received a weight:', len(f.readlines()))
+        
+    
 
 
 if __name__ == '__main__':
